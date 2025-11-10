@@ -134,12 +134,19 @@ max_scroll = 0
 
 def draw_gradient_background():
     """Dibuja un fondo con gradiente"""
+    if not pygame.display.get_init():
+        return
+
     for y in range(SCREEN_HEIGHT):
         ratio = y / SCREEN_HEIGHT
         r = int(GRADIENT_START[0] * (1 - ratio) + GRADIENT_END[0] * ratio)
         g = int(GRADIENT_START[1] * (1 - ratio) + GRADIENT_END[1] * ratio)
         b = int(GRADIENT_START[2] * (1 - ratio) + GRADIENT_END[2] * ratio)
-        pygame.draw.line(screen, (r, g, b), (0, y), (SCREEN_WIDTH, y))
+
+        if screen:
+            pygame.draw.line(screen, (r, g, b), (0, y), (SCREEN_WIDTH, y))
+        else:
+            break
 
 def draw_text(text, font, color, x, y, center=False):
     """Dibuja texto en pantalla"""

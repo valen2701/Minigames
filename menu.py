@@ -501,9 +501,9 @@ def save_settings():
     try:
         with open('game_settings.json', 'w', encoding='utf-8') as f:
             json.dump(game_settings, f, indent=4, ensure_ascii=False)
-        print("✓ Configuraciones guardadas exitosamente")
+        print(" Configuraciones guardadas exitosamente")
     except Exception as e:
-        print(f"✗ Error al guardar configuraciones: {e}")
+        print(f" Error al guardar configuraciones: {e}")
 
 def load_settings():
     """Carga las configuraciones desde JSON"""
@@ -517,36 +517,36 @@ def load_settings():
             if key in loaded_settings:
                 game_settings[key] = loaded_settings[key]
         
-        print("✓ Configuraciones cargadas exitosamente")
+        print(" Configuraciones cargadas exitosamente")
         
     except FileNotFoundError:
-        print("⚠ No se encontró archivo de configuraciones, usando valores por defecto")
+        print(" No se encontró archivo de configuraciones, usando valores por defecto")
         game_settings = default_settings.copy()
         save_settings()
     except Exception as e:
-        print(f"✗ Error al cargar configuraciones: {e}")
+        print(f" Error al cargar configuraciones: {e}")
         game_settings = default_settings.copy()
 
 def main():
     """Función principal del juego"""
     global menu_state, screen, fondo_menu, fondo_menu_option
-    
+
     load_settings()
-    
+
     # Asegurarse de que fullscreen esté en False al inicio
     if game_settings.get("fullscreen", False):
         game_settings["fullscreen"] = False
         save_settings()
-    
+
     try:
         # Escalar fondos a la resolución actual
         fondo_menu = pygame.transform.scale(fondo_menu, (SCREEN_WIDTH, SCREEN_HEIGHT))
         fondo_menu_option = pygame.transform.scale(fondo_menu_option, (SCREEN_WIDTH, SCREEN_HEIGHT))
     except:
         print("⚠️ Error escalando fondos")
-    
+
     run = True
-    
+
     print("=" * 50)
     print("🎮 MENÚ DE JUEGO - PAPU GAMES INC.")
     print("=" * 50)
@@ -555,35 +555,44 @@ def main():
     print("   • C: Ver créditos")
     print("   • Click: Interactuar con elementos")
     print("=" * 50)
-    
+
     while run:
         clock.tick(FPS)
-        
+
+        # ✅ Verificar si la ventana fue cerrada (evita "display Surface quit")
+        if not pygame.display.get_init():
+            break
+
         run = handle_events()
         if not run:
             break
-        
+
         if menu_state == "main":
             run = handle_main_menu()
-        
+
         elif menu_state == "options":
             handle_options_menu()
-        
+
         elif menu_state == "video":
             handle_video_settings()
-        
+
         elif menu_state == "audio":
             handle_audio_settings()
-        
+
         elif menu_state == "credits":
             handle_credits()
-        
+
+        # ✅ Verificar otra vez antes de dibujar o actualizar
+        if not pygame.display.get_init():
+            break
+
         draw_message()
         pygame.display.update()
-    
-    save_settings()
-    pygame.quit()
-    sys.exit()
 
+
+    if pygame.display.get_init():
+        save_settings()
+        pygame.quit()
+    sys.exit()
 if __name__ == "__main__":
     main()
